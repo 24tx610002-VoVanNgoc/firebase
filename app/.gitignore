@@ -1,1 +1,17 @@
+# Build files
 /build
+/release
+
+# Generated APK files
+*.apk
+*.aab
+
+# Temporary files
+*.tmp
+*.temp
+
+# Proguard mapping files
+mapping.txt
+
+# Local test files
+/src/test/resources/
