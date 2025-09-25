@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.appclothes">
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="App Clothes"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.AppCompat.Light.NoActionBar">
+
+        <!-- Màn hình đăng nhập (mặc định khi mở app) -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Màn hình chính -->
+        <activity
+            android:name=".HomeActivity"
+            android:exported="false" />
+
+        <!-- Màn hình chi tiết sản phẩm -->
+        <activity
+            android:name=".DetailActivity"
+            android:exported="false" />
+
+        <!-- Màn hình giỏ hàng -->
+        <activity
+            android:name=".CartActivity"
+            android:exported="false" />
+
+        <!-- Màn hình hồ sơ -->
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="false" />
+
+    </application>
+
+</manifest>
