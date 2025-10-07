@@ -11,18 +11,24 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder> {
 
     private Context context;
     private List<Product> cartList;
-    private Runnable updateTotalCallback;
+    private OnCartUpdateListener updateListener;
 
-    public CartAdapter(Context context, List<Product> cartList, Runnable updateTotalCallback) {
+    public interface OnCartUpdateListener {
+        void onCartUpdated();
+    }
+
+    public CartAdapter(Context context, List<Product> cartList, OnCartUpdateListener updateListener) {
         this.context = context;
         this.cartList = cartList;
-        this.updateTotalCallback = updateTotalCallback;
+        this.updateListener = updateListener;
     }
 
     @NonNull
@@ -36,16 +42,37 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
     public void onBindViewHolder(@NonNull CartViewHolder holder, int position) {
         Product product = cartList.get(position);
 
-        holder.imgProduct.setImageResource(product.getImage());
+        // Load hình ảnh
+        if (product.getImageUrl() != null && !product.getImageUrl().isEmpty()) {
+            if (product.getImageUrl().startsWith("drawable://")) {
+                String drawableName = product.getImageUrl().replace("drawable://", "");
+                int drawableId = getDrawableIdByName(drawableName);
+                if (drawableId != 0) {
+                    holder.imgProduct.setImageResource(drawableId);
+                } else {
+                    holder.imgProduct.setImageResource(R.drawable.aothun1);
+                }
+            } else {
+                Glide.with(context)
+                        .load(product.getImageUrl())
+                        .placeholder(R.drawable.aothun1)
+                        .error(R.drawable.aothun1)
+                        .into(holder.imgProduct);
+            }
+        } else {
+            holder.imgProduct.setImageResource(product.getImage());
+        }
+
         holder.txtName.setText(product.getName());
         holder.txtPrice.setText(product.getPrice());
-        holder.txtQuantity.setText(String.valueOf(product.getQuantity()));
+        holder.txtQuantity.setText("Số lượng: " + product.getQuantity());
 
         // Tăng số lượng
         holder.btnIncrease.setOnClickListener(v -> {
             product.setQuantity(product.getQuantity() + 1);
             notifyItemChanged(position);
-            if (updateTotalCallback != null) updateTotalCallback.run();
+            if (updateListener != null)
+                updateListener.onCartUpdated();
         });
 
         // Giảm số lượng
@@ -53,22 +80,31 @@ public class CartAdapter extends RecyclerView.Adapter<CartAdapter.CartViewHolder
             if (product.getQuantity() > 1) {
                 product.setQuantity(product.getQuantity() - 1);
                 notifyItemChanged(position);
-                if (updateTotalCallback != null) updateTotalCallback.run();
+                if (updateListener != null)
+                    updateListener.onCartUpdated();
             }
         });
 
         // Xoá sản phẩm
         holder.btnRemove.setOnClickListener(v -> {
-            cartList.remove(position);
-            notifyItemRemoved(position);
-            notifyItemRangeChanged(position, cartList.size());
-            if (updateTotalCallback != null) updateTotalCallback.run();
+            if (context instanceof CartActivity) {
+                ((CartActivity) context).removeItemFromCart(position);
+            }
         });
     }
 
     @Override
     public int getItemCount() {
         return cartList.size();
+    }
+
+    // Helper method để get drawable ID từ tên
+    private int getDrawableIdByName(String drawableName) {
+        try {
+            return context.getResources().getIdentifier(drawableName, "drawable", context.getPackageName());
+        } catch (Exception e) {
+            return 0;
+        }
     }
 
     public static class CartViewHolder extends RecyclerView.ViewHolder {

@@ -3,12 +3,15 @@ package com.example.appclothes;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
@@ -20,8 +23,10 @@ public class HomeActivity extends AppCompatActivity {
     RecyclerView recyclerView;
     ProductAdapter adapter;
     ArrayList<Product> productList;
-    Button btnCart, btnProfile;
+    Button btnCart, btnProfile, btnAdmin;
     FirebaseFirestore clothesDB;
+
+    private FirebaseAuth mAuth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,8 +34,9 @@ public class HomeActivity extends AppCompatActivity {
         setContentView(R.layout.activity_home);
 
         initViews();
-        setupRecyclerView();
         setupFirebase();
+        checkAuthentication();
+        setupRecyclerView();
         setupButtons();
     }
 
@@ -38,15 +44,48 @@ public class HomeActivity extends AppCompatActivity {
         recyclerView = findViewById(R.id.recyclerView);
         btnCart = findViewById(R.id.btnCart);
         btnProfile = findViewById(R.id.btnProfile);
+        btnAdmin = findViewById(R.id.btnAdmin);
     }
 
     private void setupFirebase() {
         try {
+            mAuth = FirebaseAuth.getInstance();
             clothesDB = FirebaseFirestore.getInstance();
-            Log.d(TAG, "Firebase Firestore initialized");
+            Log.d(TAG, "Firebase initialized");
         } catch (Exception e) {
             Log.e(TAG, "Error setting up Firebase: " + e.getMessage());
         }
+    }
+
+    private void checkAuthentication() {
+        FirebaseUser currentUser = mAuth.getCurrentUser();
+        if (currentUser == null) {
+            // User chưa đăng nhập, chuyển về MainActivity
+            startActivity(new Intent(HomeActivity.this, MainActivity.class));
+            finish();
+            return;
+        }
+        Log.d(TAG, "User logged in: " + currentUser.getEmail());
+
+        // Kiểm tra quyền admin để hiển thị nút Admin
+        checkAdminRole(currentUser.getUid());
+    }
+
+    private void checkAdminRole(String userId) {
+        clothesDB.collection("users").document(userId)
+                .get()
+                .addOnSuccessListener(document -> {
+                    if (document.exists()) {
+                        String role = document.getString("role");
+                        if ("admin".equals(role)) {
+                            btnAdmin.setVisibility(View.VISIBLE);
+                            Log.d(TAG, "User is admin, showing admin button");
+                        }
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Log.e(TAG, "Error checking user role", e);
+                });
     }
 
     private void setupRecyclerView() {
@@ -111,5 +150,15 @@ public class HomeActivity extends AppCompatActivity {
     private void setupButtons() {
         btnCart.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, CartActivity.class)));
         btnProfile.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, ProfileActivity.class)));
+        btnAdmin.setOnClickListener(v -> startActivity(new Intent(HomeActivity.this, AdminActivity.class)));
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Refresh product data khi quay về từ màn hình khác
+        // Đặc biệt hữu ích khi admin cập nhật sản phẩm
+        Log.d(TAG, "HomeActivity resumed, refreshing product data");
+        loadProductsFromClothesDB();
     }
 }

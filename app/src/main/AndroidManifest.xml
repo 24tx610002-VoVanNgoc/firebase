@@ -13,13 +13,33 @@
 
         <!-- Màn hình đăng nhập (mặc định khi mở app) -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- Màn hình đăng ký -->
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" />
+
+        <!-- Trang Admin -->
+        <activity
+            android:name=".AdminActivity"
+            android:exported="false" />
+
+        <!-- Thêm sản phẩm -->
+        <activity
+            android:name=".AddProductActivity"
+            android:exported="false" />
+
+        <!-- Chỉnh sửa sản phẩm -->
+        <activity
+            android:name=".EditProductActivity"
+            android:exported="false" />
 
         <!-- Màn hình chính -->
         <activity

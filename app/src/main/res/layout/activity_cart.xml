@@ -4,6 +4,24 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
+    <ImageButton
+        android:id="@+id/btnBackHome"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:background="@android:color/transparent"
+        android:src="@android:drawable/ic_media_previous"
+        android:contentDescription="Quay về trang chủ"
+        android:layout_gravity="start"
+        android:layout_margin="8dp" />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone"
+        android:layout_margin="16dp" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerCart"
         android:layout_width="match_parent"
@@ -11,15 +29,32 @@
         android:layout_weight="1"
         android:padding="8dp" />
 
-    <TextView
-        android:id="@+id/txtTotal"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Tổng: 0đ"
-        android:gravity="center"
-        android:textSize="18sp"
-        android:textStyle="bold"
-        android:padding="12dp"
-        android:background="@android:color/darker_gray" />
+        android:orientation="vertical"
+        android:background="@android:color/darker_gray"
+        android:padding="16dp">
+
+        <TextView
+            android:id="@+id/txtTotal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Tổng: 0đ"
+            android:gravity="center"
+            android:textSize="18sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="12dp" />
+
+        <Button
+            android:id="@+id/btnCheckout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Thanh toán"
+            android:backgroundTint="@android:color/holo_green_dark"
+            android:textColor="@android:color/white"
+            android:enabled="false" />
+
+    </LinearLayout>
 
 </LinearLayout>
